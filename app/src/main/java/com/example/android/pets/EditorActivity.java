@@ -3,6 +3,8 @@ package com.example.android.pets;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,8 +15,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
+import com.example.android.pets.data.PetDbHelper;
 
 
 public class EditorActivity extends AppCompatActivity {
@@ -91,6 +95,33 @@ public class EditorActivity extends AppCompatActivity {
         });
     }
 
+    private void insertPet() {
+        String nameSting = mNameEditText.getText().toString().trim();
+        String breedSting = mBreedEditText.getText().toString().trim();
+        String weightSting = mWeightEditText.getText().toString().trim();
+        int weight = Integer.parseInt(weightSting);
+
+        PetDbHelper mDbHelper = new PetDbHelper(this);
+
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(PetContract.PetEntry.COLUMN_PET_NAME , nameSting);
+        values.put(PetContract.PetEntry.COLUMN_PET_BREED , breedSting);
+        values.put(PetContract.PetEntry.COLUMN_PET_GENDER , mGender);
+        values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT , weight);
+
+        long newRodId = db.insert(PetContract.PetEntry.TABLE_NAME , null , values);
+
+        if(newRodId == -1){
+            Toast.makeText(this , "Error in saving pet" , Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(this , "Pet saved with Row id" + newRodId , Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu options from the res/menu/menu_editor.xml file.
@@ -105,7 +136,10 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:  
-                // Do nothing for now
+                // Insterting Pet
+                insertPet();
+                // doing back to catalog activity
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
@@ -119,4 +153,6 @@ public class EditorActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }
