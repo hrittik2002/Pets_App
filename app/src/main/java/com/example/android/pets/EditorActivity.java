@@ -133,7 +133,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String nameSting = mNameEditText.getText().toString().trim();
         String breedSting = mBreedEditText.getText().toString().trim();
         String weightSting = mWeightEditText.getText().toString().trim();
-        int weight = Integer.parseInt(weightSting);
+
+        if (mCurrentPetUri == null &&
+                TextUtils.isEmpty(nameSting) && TextUtils.isEmpty(breedSting) &&
+                TextUtils.isEmpty(weightSting) && mGender == PetEntry.GENDER_UNKNOWN) {return;}
 
         // Create a ContentValues object where column names are the keys,
         // and pet attributes from the editor are the values.
@@ -141,7 +144,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(PetContract.PetEntry.COLUMN_PET_NAME , nameSting);
         values.put(PetContract.PetEntry.COLUMN_PET_BREED , breedSting);
         values.put(PetContract.PetEntry.COLUMN_PET_GENDER , mGender);
-        values.put(PetContract.PetEntry.COLUMN_PET_WEIGHT , weight);
+
+
+        // If the weight is not provided by the user, don't try to parse the string into an
+        // integer value. Use 0 by default.
+        int weight = 0;
+        if (!TextUtils.isEmpty(weightSting)) {
+            weight = Integer.parseInt(weightSting);
+        }
+        values.put(PetEntry.COLUMN_PET_WEIGHT, weight);
 
 
         if (mCurrentPetUri == null) {
